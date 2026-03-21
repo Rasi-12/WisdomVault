@@ -1,7 +1,3 @@
-## 
+WisdomVault — AI Elder Knowledge System
 
-This source code has been exported from [Caffeine](https://caffeine.ai/)
-
-### Coming Soon
-
-We are working on tools to help you build locally and deploy your apps back to caffeine.
+WisdomVault bridges generations by preserving ancient village wisdom before it disappears forever. Elders speak, AI listens — capturing traditional remedies, cultural stories, and food practices into a searchable digital archive accessible to everyone. 🌿

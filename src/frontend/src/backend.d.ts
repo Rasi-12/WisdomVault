@@ -20,6 +20,12 @@ export interface KnowledgeEntry {
     contributorAge: bigint;
 }
 export type Time = bigint;
+export interface ContactSubmission {
+    name: string;
+    emailOrPhone: string;
+    message: string;
+    timestamp: Time;
+}
 export interface ContributionSubmission {
     id: string;
     age: bigint;
@@ -50,6 +56,7 @@ export type SubmissionFilter = {
 };
 export interface backendInterface {
     filterContributions(filter: SubmissionFilter): Promise<Array<ContributionSubmission>>;
+    getAllContactSubmissions(): Promise<Array<ContactSubmission>>;
     getAllKnowledgeEntries(): Promise<Array<KnowledgeEntry>>;
     getContributionById(id: string): Promise<ContributionSubmission>;
     getKnowledgeEntriesByCategory(category: string): Promise<Array<KnowledgeEntry>>;

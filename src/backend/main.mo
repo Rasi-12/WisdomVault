@@ -214,6 +214,10 @@ actor {
     contactSubmissions.add(Time.now().toText(), contact);
   };
 
+  public query ({ caller }) func getAllContactSubmissions() : async [ContactSubmission] {
+    contactSubmissions.values().toArray();
+  };
+
   public shared ({ caller }) func submitContribution(contributorName : Text, age : Nat, region : Text, language : Text, transcription : Text, category : Text, recordingType : Text) : async Text {
     let id = generateContributionId();
     let submission : ContributionSubmission = {

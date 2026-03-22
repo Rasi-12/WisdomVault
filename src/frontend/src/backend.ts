@@ -102,6 +102,12 @@ export interface KnowledgeEntry {
     contributorAge: bigint;
 }
 export type Time = bigint;
+export interface ContactSubmission {
+    name: string;
+    emailOrPhone: string;
+    message: string;
+    timestamp: Time;
+}
 export interface ContributionSubmission {
     id: string;
     age: bigint;
@@ -132,6 +138,7 @@ export type SubmissionFilter = {
 };
 export interface backendInterface {
     filterContributions(filter: SubmissionFilter): Promise<Array<ContributionSubmission>>;
+    getAllContactSubmissions(): Promise<Array<ContactSubmission>>;
     getAllKnowledgeEntries(): Promise<Array<KnowledgeEntry>>;
     getContributionById(id: string): Promise<ContributionSubmission>;
     getKnowledgeEntriesByCategory(category: string): Promise<Array<KnowledgeEntry>>;
@@ -154,6 +161,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.filterContributions(to_candid_SubmissionFilter_n1(this._uploadFile, this._downloadFile, arg0));
+            return result;
+        }
+    }
+    async getAllContactSubmissions(): Promise<Array<ContactSubmission>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllContactSubmissions();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllContactSubmissions();
             return result;
         }
     }

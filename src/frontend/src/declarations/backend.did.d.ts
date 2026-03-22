@@ -10,6 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface ContactSubmission {
+  'name' : string,
+  'emailOrPhone' : string,
+  'message' : string,
+  'timestamp' : Time,
+}
 export interface ContributionSubmission {
   'id' : string,
   'age' : bigint,
@@ -45,6 +51,7 @@ export interface _SERVICE {
     [SubmissionFilter],
     Array<ContributionSubmission>
   >,
+  'getAllContactSubmissions' : ActorMethod<[], Array<ContactSubmission>>,
   'getAllKnowledgeEntries' : ActorMethod<[], Array<KnowledgeEntry>>,
   'getContributionById' : ActorMethod<[string], ContributionSubmission>,
   'getKnowledgeEntriesByCategory' : ActorMethod<

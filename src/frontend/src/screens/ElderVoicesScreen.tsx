@@ -7,7 +7,31 @@ interface ElderVoicesScreenProps {
 }
 
 const FEATURED_SPEECH_TEXT =
-  "சளி இருமல் வந்தால், தேன் இஞ்சியை சேர்த்து கொதிக்க வேண்டும். இஞ்சி தேனை சூடான நீரில் கலந்து குடிக்க வேண்டும். இது தொண்டை வலியை குறைக்கும்.";
+  "For cold and cough, boil ginger with honey. Mix ginger and honey in warm water and drink it. This will reduce throat pain and cure the cough.";
+
+const MORE_RECORDINGS = [
+  {
+    title: "Turmeric Milk for Immunity",
+    duration: 95,
+    region: "Tamil Nadu",
+    speechText:
+      "Boil turmeric in warm milk and drink it before sleeping. This builds immunity, fights infections, and keeps the body strong during seasonal changes.",
+  },
+  {
+    title: "Neem Leaf Pest Repellent",
+    duration: 108,
+    region: "Tamil Nadu",
+    speechText:
+      "Crush neem leaves and mix with water. Spray this around crops and plants to keep pests away naturally without any harmful chemicals.",
+  },
+  {
+    title: "Rain-Reading Wisdom",
+    duration: 134,
+    region: "Tamil Nadu",
+    speechText:
+      "When the eastern wind blows and ants carry eggs to higher ground, rain is coming within two days. This is how our elders predicted the monsoon.",
+  },
+];
 
 export function ElderVoicesScreen({ onBack }: ElderVoicesScreenProps) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -60,7 +84,7 @@ export function ElderVoicesScreen({ onBack }: ElderVoicesScreenProps) {
             variant="large"
             onPlayStateChange={setIsPlaying}
             speechText={FEATURED_SPEECH_TEXT}
-            speechLang="ta-IN"
+            speechLang="en-IN"
           />
         </div>
 
@@ -71,17 +95,18 @@ export function ElderVoicesScreen({ onBack }: ElderVoicesScreenProps) {
           }`}
         >
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Tamil Transcription
+            English Translation
           </h4>
-          <p className="text-lg text-foreground leading-loose" dir="auto">
-            சளி இருமல் வந்தால், தேன் இஞ்சியை சேர்த்து கொதிக்க வேண்டும். இஞ்சி தேனை சூடான நீரில்
-            கலந்து குடிக்க வேண்டும். இது தொண்டை வலியை குறைக்கும்.
+          <p className="text-lg text-foreground leading-loose">
+            For cold and cough, boil ginger with honey. Mix ginger and honey in
+            warm water and drink it. This will reduce throat pain and cure the
+            cough.
           </p>
         </div>
 
         {isPlaying && (
           <p className="text-center text-xs text-muted-foreground mt-3 animate-fade-in">
-            🎙️ AI voice is speaking in Tamil
+            🎙️ AI voice is speaking
           </p>
         )}
 
@@ -90,23 +115,7 @@ export function ElderVoicesScreen({ onBack }: ElderVoicesScreenProps) {
           More Recordings
         </h4>
         <div className="flex flex-col gap-3">
-          {[
-            {
-              title: "Turmeric Milk for Immunity",
-              duration: 95,
-              region: "Tamil Nadu",
-            },
-            {
-              title: "Neem Leaf Pest Repellent",
-              duration: 108,
-              region: "Tamil Nadu",
-            },
-            {
-              title: "Rain-Reading Wisdom",
-              duration: 134,
-              region: "Tamil Nadu",
-            },
-          ].map((item, i) => (
+          {MORE_RECORDINGS.map((item, i) => (
             <div
               key={item.title}
               data-ocid={`elder_voices.item.${i + 1}`}
@@ -124,6 +133,8 @@ export function ElderVoicesScreen({ onBack }: ElderVoicesScreenProps) {
                 title={item.title}
                 durationSeconds={item.duration}
                 variant="compact"
+                speechText={item.speechText}
+                speechLang="en-IN"
               />
             </div>
           ))}

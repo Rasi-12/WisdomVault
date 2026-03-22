@@ -10,11 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Mic, Play, Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { ConfirmationData } from "../App";
-import { AudioPlayer } from "../components/AudioPlayer";
 import { useSubmitContribution } from "../hooks/useQueries";
 
 interface ContributeScreenProps {
@@ -23,6 +22,8 @@ interface ContributeScreenProps {
 
 const SAMPLE_TRANSCRIPTION =
   "மஞ்சள் பால் தயாரிக்க ஒரு டீஸ்பூன் மஞ்சள் பொடியை ஒரு கப் சூடான பாலில் சேர்த்து இரவில் குடிக்க வேண்டும். இதனால் நோய் எதிர்ப்பு சக்தி அதிகரிக்கும்.";
+
+type RecordingState = "idle" | "recording" | "complete";
 
 export function ContributeScreen({ onConfirmation }: ContributeScreenProps) {
   const [verification, setVerification] = useState<
@@ -34,6 +35,93 @@ export function ContributeScreen({ onConfirmation }: ContributeScreenProps) {
   const [region, setRegion] = useState("");
   const [language, setLanguage] = useState("");
   const [emailOrPhone, setEmailOrPhone] = useState("");
+
+  // Voice recording state
+  const [recordingState, setRecordingState] = useState<RecordingState>("idle");
+  const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+      if (streamRef.current) {
+        for (const track of streamRef.current.getTracks()) track.stop();
+      }
+    };
+  }, [audioBlobUrl]);
+
+  const handleMicClick = async () => {
+    if (recordingState === "idle" || recordingState === "complete") {
+      // Start recording
+      try {
+        if (audioBlobUrl) {
+          URL.revokeObjectURL(audioBlobUrl);
+          setAudioBlobUrl(null);
+        }
+        chunksRef.current = [];
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        streamRef.current = stream;
+
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+          const url = URL.createObjectURL(blob);
+          setAudioBlobUrl(url);
+          setRecordingState("complete");
+          // Stop all tracks
+          if (streamRef.current) {
+            for (const track of streamRef.current.getTracks()) track.stop();
+          }
+        };
+
+        mediaRecorder.start();
+        setRecordingState("recording");
+      } catch {
+        toast.error(
+          "Microphone access denied. Please allow microphone permission and try again.",
+        );
+      }
+    } else if (recordingState === "recording") {
+      // Stop recording
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
+        mediaRecorderRef.current.stop();
+      }
+    }
+  };
+
+  const handlePlayback = () => {
+    if (!audioBlobUrl) return;
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioBlobUrl);
+      audioRef.current.onended = () => setIsPlaying(false);
+    }
+    if (isPlaying) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
 
   const submitMutation = useSubmitContribution();
 
@@ -79,6 +167,13 @@ export function ContributeScreen({ onConfirmation }: ContributeScreenProps) {
     }
   };
 
+  const statusText =
+    recordingState === "idle"
+      ? "Tap to Record"
+      : recordingState === "recording"
+        ? "Recording..."
+        : "Recording Complete";
+
   return (
     <div data-ocid="contribute.page" className="flex flex-col">
       {/* Header */}
@@ -98,29 +193,74 @@ export function ContributeScreen({ onConfirmation }: ContributeScreenProps) {
       </div>
 
       <div className="px-4 py-5 flex flex-col gap-5">
-        {/* Audio Preview */}
+        {/* Voice Recording */}
         <div className="bg-card rounded-2xl p-5 shadow-card border border-border">
           <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-4">
-            Audio Preview
+            Voice Recording
           </h3>
-          <AudioPlayer
-            title="Your Recording"
-            durationSeconds={72}
-            variant="large"
-          />
-          <div className="mt-4 flex gap-4 text-center">
-            <div className="flex-1 bg-muted/50 rounded-xl p-2">
-              <div className="text-sm font-bold text-primary">1:12</div>
-              <div className="text-xs text-muted-foreground">Duration</div>
-            </div>
-            <div className="flex-1 bg-muted/50 rounded-xl p-2">
-              <div className="text-sm font-bold text-primary">Good</div>
-              <div className="text-xs text-muted-foreground">Quality</div>
-            </div>
-            <div className="flex-1 bg-muted/50 rounded-xl p-2">
-              <div className="text-sm font-bold text-primary">Clear</div>
-              <div className="text-xs text-muted-foreground">Voice</div>
-            </div>
+          <div className="flex flex-col items-center gap-3 py-2">
+            {/* Mic button */}
+            <button
+              data-ocid="contribute.mic.button"
+              type="button"
+              onClick={handleMicClick}
+              className={[
+                "w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-300",
+                recordingState === "recording"
+                  ? "bg-red-500 shadow-lg shadow-red-300 animate-pulse"
+                  : "bg-red-500 hover:bg-red-600 shadow-md hover:shadow-red-200",
+              ].join(" ")}
+              aria-label={
+                recordingState === "recording"
+                  ? "Stop recording"
+                  : "Start recording"
+              }
+            >
+              {recordingState === "recording" ? (
+                <Square className="w-8 h-8 text-white fill-white" />
+              ) : (
+                <Mic className="w-8 h-8 text-white" />
+              )}
+            </button>
+
+            {/* Status text */}
+            <p
+              data-ocid="contribute.recording.loading_state"
+              className={[
+                "text-sm font-medium text-center mt-1",
+                recordingState === "recording"
+                  ? "text-red-500"
+                  : recordingState === "complete"
+                    ? "text-green-600"
+                    : "text-muted-foreground",
+              ].join(" ")}
+            >
+              {statusText}
+            </p>
+
+            {/* Playback button */}
+            {recordingState === "complete" && audioBlobUrl && (
+              <button
+                data-ocid="contribute.playback.button"
+                type="button"
+                onClick={handlePlayback}
+                className="w-12 h-12 rounded-full bg-primary hover:bg-secondary flex items-center justify-center shadow-md transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-green-300 mt-1"
+                aria-label={isPlaying ? "Stop playback" : "Play recording"}
+              >
+                {isPlaying ? (
+                  <Square className="w-5 h-5 text-white fill-white" />
+                ) : (
+                  <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+                )}
+              </button>
+            )}
+            {recordingState === "complete" && (
+              <p className="text-xs text-muted-foreground">
+                {isPlaying
+                  ? "Playing your recording..."
+                  : "Tap to play back your recording"}
+              </p>
+            )}
           </div>
         </div>
 

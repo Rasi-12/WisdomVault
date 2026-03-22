@@ -63,6 +63,8 @@ export function KnowledgeDetailScreen({
             title={entry.title}
             durationSeconds={72}
             variant="large"
+            speechText={entry.description}
+            speechLang="en-IN"
           />
         </div>
 

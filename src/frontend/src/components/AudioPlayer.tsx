@@ -22,7 +22,7 @@ export function AudioPlayer({
   variant = "compact",
   onPlayStateChange,
   speechText,
-  speechLang = "en-US",
+  speechLang = "en-IN",
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -69,8 +69,9 @@ export function AudioPlayer({
     if (next && speechText) {
       const utterance = new SpeechSynthesisUtterance(speechText);
       utterance.lang = speechLang;
-      utterance.rate = 0.85;
-      utterance.pitch = 1;
+      utterance.rate = 0.7;
+      utterance.pitch = 0.8;
+      utterance.volume = 1;
       utterance.onend = () => {
         setIsPlaying(false);
         onPlayStateChange?.(false);

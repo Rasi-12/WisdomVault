@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { KnowledgeEntry } from "./backend";
 import { BottomTabBar } from "./components/BottomTabBar";
 import { AboutScreen } from "./screens/AboutScreen";
+import { AdminScreen } from "./screens/AdminScreen";
 import { AppDownloadScreen } from "./screens/AppDownloadScreen";
 import { BrowseScreen } from "./screens/BrowseScreen";
 import { ConfirmationScreen } from "./screens/ConfirmationScreen";
@@ -33,7 +34,7 @@ export interface ConfirmationData {
   region: string;
 }
 
-export default function App() {
+function MainApp() {
   const [screen, setScreen] = useState<Screen>("home");
   const [previousScreen, setPreviousScreen] = useState<Screen>("home");
   const [selectedEntry, setSelectedEntry] = useState<KnowledgeEntry | null>(
@@ -164,4 +165,11 @@ export default function App() {
       <Toaster />
     </div>
   );
+}
+
+export default function App() {
+  if (window.location.pathname === "/admin") {
+    return <AdminScreen />;
+  }
+  return <MainApp />;
 }

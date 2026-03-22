@@ -20,19 +20,6 @@ const categoryColors: Record<string, string> = {
   "Farming Practices": "bg-green-50 text-green-700 border-green-200",
 };
 
-function langToSpeechCode(language: string): string {
-  switch (language) {
-    case "Tamil":
-      return "ta-IN";
-    case "Telugu":
-      return "te-IN";
-    case "Hindi":
-      return "hi-IN";
-    default:
-      return "en-US";
-  }
-}
-
 export function BrowseScreen({
   onNavigate: _onNavigate,
   onOpenDetail,
@@ -155,7 +142,7 @@ export function BrowseScreen({
                 durationSeconds={72}
                 variant="compact"
                 speechText={entry.description}
-                speechLang={langToSpeechCode(entry.language)}
+                speechLang="en-IN"
               />
             </button>
           ))

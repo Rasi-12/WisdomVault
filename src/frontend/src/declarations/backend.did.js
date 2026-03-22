@@ -16,6 +16,12 @@ export const SubmissionFilter = IDL.Variant({
   'category' : IDL.Text,
 });
 export const Time = IDL.Int;
+export const ContactSubmission = IDL.Record({
+  'name' : IDL.Text,
+  'emailOrPhone' : IDL.Text,
+  'message' : IDL.Text,
+  'timestamp' : Time,
+});
 export const ContributionSubmission = IDL.Record({
   'id' : IDL.Text,
   'age' : IDL.Nat,
@@ -47,6 +53,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(ContributionSubmission)],
       ['query'],
     ),
+  'getAllContactSubmissions' : IDL.Func([], [IDL.Vec(ContactSubmission)], ['query']),
   'getAllKnowledgeEntries' : IDL.Func([], [IDL.Vec(KnowledgeEntry)], ['query']),
   'getContributionById' : IDL.Func(
       [IDL.Text],
@@ -83,6 +90,12 @@ export const idlFactory = ({ IDL }) => {
     'category' : IDL.Text,
   });
   const Time = IDL.Int;
+  const ContactSubmission = IDL.Record({
+    'name' : IDL.Text,
+    'emailOrPhone' : IDL.Text,
+    'message' : IDL.Text,
+    'timestamp' : Time,
+  });
   const ContributionSubmission = IDL.Record({
     'id' : IDL.Text,
     'age' : IDL.Nat,
@@ -114,6 +127,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(ContributionSubmission)],
         ['query'],
       ),
+    'getAllContactSubmissions' : IDL.Func([], [IDL.Vec(ContactSubmission)], ['query']),
     'getAllKnowledgeEntries' : IDL.Func(
         [],
         [IDL.Vec(KnowledgeEntry)],
